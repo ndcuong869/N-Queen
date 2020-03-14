@@ -9,6 +9,16 @@ import QueenEnvironment
 import queue
 
 
+def convert_state_to_string(my_state):
+    my_string = ''
+    for column in range(size):
+        for row in range(size):
+            if my_state.map[row][column] == 1:
+                my_string += str(row + 1) + ' '
+                break
+    return my_string
+
+
 class UCS:
     def __init__(self, start_state, goal, action):
         self.goal = goal
@@ -16,14 +26,21 @@ class UCS:
         self.start_state = start_state
         self.action = action
         self.states.put((start_state.c, start_state))
+        self.visited_set = []
 
     def is_goal(self, state):
         if self.goal is not None:
             return self.goal(state)
 
+    def is_visited(self, my_state):
+        if my_state in self.visited_set:
+            return True
+        return False
+
     def push_to_queue(self, new_states):
         for state in new_states:
-            self.states.put((state.c, state))
+            if not self.is_visited(state):
+                self.states.put((state.c, state))
 
     def search(self):
         (value, best_state) = self.states.get()
@@ -38,6 +55,8 @@ class UCS:
                 print('Time %s' % count)
                 print('C = %s' % best_state.c)
                 print('Length of queue = %s' % self.states.qsize())
+                print(convert_state_to_string(best_state))
+                self.visited_set.append(convert_state_to_string(best_state))
                 count += 1
             else:
                 return None
@@ -292,48 +311,44 @@ def print_board(state):
         print(line)
 
 
-env = QueenEnvironment.QueenEnvironment()
+def main():
+    env = QueenEnvironment.QueenEnvironment()
 
-env.current_state = env.random_start_state()
-env.current_state.show()
+    env.current_state = env.random_start_state()
+    env.current_state.show()
 
-print('1. UCS')
-print('2. A*')
-print('3. Random restart Hill-climbing')
-print('4. Genetic Algorithm')
+    print('1. UCS')
+    print('2. A*')
+    print('3. Random restart Hill-climbing')
+    print('4. Genetic Algorithm')
 
-choose = int(input())
+    choose = int(input())
 
-agent = UCS(env.current_state, env.goal, env.action)
-if choose == 1:
-    agent = UCS(env.current_state, env.goal, env.action)
-elif choose == 2:
-    agent = AStar(env.current_state, env.goal, env.action)
-elif choose == 3:
-    agent = Hill_climbing(env)
-elif choose == 4:
-    state_list = []
-    for i in range(20):
-        state_list.append(env.random_start_state())
+    if choose == 1:
+        agent = UCS(env.current_state, env.goal, env.action)
+    elif choose == 2:
+        agent = AStar(env.current_state, env.goal, env.action)
+    elif choose == 3:
+        agent = Hill_climbing(env)
+    elif choose == 4:
+        state_list = []
+        for i in range(20):
+            state_list.append(env.random_start_state())
 
-    agent = Genetic(state_list, 30)
+        agent = Genetic(state_list, 30)
 
-#agent = Hill_climbing(env)
-#agent = AStar(env.current_state, env.goal, env.action)
-#agent = UCS(env.current_state, env.goal, env.action)
+    solution = agent.search()
 
-#agent = Genetic(state_list, 30)
+    state = solution
+    state.show()
 
-solution = agent.search()
+    result = ''
+    for column in range(size):
+        for row in range(size):
+            if state.map[row][column] == 1:
+                result += str(row + 1) + ' '
+                break
 
-state = solution
-state.show()
+    print(result)
 
-result = ''
-for column in range(size):
-    for row in range(size):
-        if state.map[row][column] == 1:
-            result += str(row + 1) + ' '
-            break
-
-print(result)
+main()

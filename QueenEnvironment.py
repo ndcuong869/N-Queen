@@ -158,6 +158,16 @@ def cal_heuristic(state):
     return h
 
 
+def convert_state_to_string(my_state):
+    my_string = ''
+    for column in range(size):
+        for row in range(size):
+            if my_state.map[row][column] == 1:
+                my_string += str(row + 1) + ' '
+                break
+    return my_string
+
+
 class QueenEnvironment:
     def __init__(self):
         self.current_state = State()
@@ -205,4 +215,5 @@ class QueenEnvironment:
                             neighbor_states.append(new_state)
                     break
 
+        print(len(neighbor_states))
         return neighbor_states
